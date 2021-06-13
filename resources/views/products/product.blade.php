@@ -30,204 +30,213 @@
 
 
     <!-- row opened -->
-    <div class="row row-sm">
-        <!--div-->
-        <div class="col-xl-12">
-            <div class="card mg-b-20">
-                <div class="card-header pb-0">
+    @if ($sections->count() > 0)
+        <div class="row row-sm">
+            <!--div-->
 
-                    <a class="modal-effect btn btn-outline-primary" data-effect="effect-scale" data-toggle="modal"
-                        href="#addmodal">اضافة منتج جديد</a>
+            <div class="col-xl-12">
+                <div class="card mg-b-20">
+                    <div class="card-header pb-0">
 
-                </div>
-                <div class="card-body">
-                    @include('includes.alerts')
+                        <a class="modal-effect btn btn-outline-primary" data-effect="effect-scale" data-toggle="modal"
+                            href="#addmodal">اضافة منتج جديد</a>
 
-                    <div class="table-responsive">
-                        <table id="example1" class="table key-buttons text-md-nowrap">
-                            <thead>
-                                <tr>
-                                    <th class="border-bottom-0">#</th>
-                                    <th class="border-bottom-0">المنتج</th>
-                                    <th class="border-bottom-0">الوصف</th>
-                                    <th class="border-bottom-0">القسم التابع له</th>
-                                    <th class="border-bottom-0">العمليات</th>
+                    </div>
 
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($products as $product)
+                    <div class="card-body">
+                        @include('includes.alerts')
+                        @include('includes.validation_errors')
 
+                        <div class="table-responsive">
+                            <table id="example1" class="table key-buttons text-md-nowrap">
+                                <thead>
                                     <tr>
-                                        <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $product->name }}</td>
-                                        <td>{{ $product->description }}</td>
-                                        <td>{{ $product->section->name }}</td>
+                                        <th class="border-bottom-0">#</th>
+                                        <th class="border-bottom-0">المنتج</th>
+                                        <th class="border-bottom-0">الوصف</th>
+                                        <th class="border-bottom-0">القسم التابع له</th>
+                                        <th class="border-bottom-0">العمليات</th>
 
-                                        <td>
-                                            <a class="modal-effect btn btn-sm btn-info" data-effect="effect-scale"
-                                                data-product_id="{{ $product->id }}" data-product_name="{{ $product->name }}"
-                                                data-description="{{ $product->description }}"
-                                                data-section_name="{{ $product->section->name }}" data-toggle="modal"
-                                                href="#edit_Product" title="تعديل"><i class="las la-pen"></i></a>
-
-
-
-                                            <a class="modal-effect btn btn-sm btn-danger" data-effect="effect-scale"
-                                                data-product_id="{{ $product->id }}"
-                                                data-product_name="{{ $product->name }}"
-                                                data-section_name="{{ $product->section->name }}" data-toggle="modal"
-                                                href="#deleteModal" title="حذف"><i class="las la-trash"></i></a>
-
-
-
-
-                                        </td>
                                     </tr>
-                                @endforeach
+                                </thead>
+                                <tbody>
+                                    @foreach ($products as $product)
 
-                            </tbody>
-                        </table>
+                                        <tr>
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{ $product->name }}</td>
+                                            <td>{{ $product->description }}</td>
+                                            <td>{{ $product->section->name }}</td>
+
+                                            <td>
+                                                <a class="modal-effect btn btn-sm btn-info" data-effect="effect-scale"
+                                                    data-product_id="{{ $product->id }}"
+                                                    data-product_name="{{ $product->name }}"
+                                                    data-description="{{ $product->description }}"
+                                                    data-section_name="{{ $product->section->name }}" data-toggle="modal"
+                                                    href="#edit_Product" title="تعديل"><i class="las la-pen"></i></a>
+
+
+
+                                                <a class="modal-effect btn btn-sm btn-danger" data-effect="effect-scale"
+                                                    data-product_id="{{ $product->id }}"
+                                                    data-product_name="{{ $product->name }}"
+                                                    data-section_name="{{ $product->section->name }}" data-toggle="modal"
+                                                    href="#deleteModal" title="حذف"><i class="las la-trash"></i></a>
+
+
+
+
+                                            </td>
+                                        </tr>
+                                    @endforeach
+
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- add modal -->
-        <div class="modal" id="addmodal">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content modal-content-demo">
-                    <div class="modal-header">
-                        <h6 class="modal-title">اضافة منتج</h6><button aria-label="Close" class="close" data-dismiss="modal"
-                            type="button"><span aria-hidden="true">&times;</span></button>
+
+            <!-- add modal -->
+            <div class="modal" id="addmodal">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content modal-content-demo">
+                        <div class="modal-header">
+                            <h6 class="modal-title">اضافة منتج</h6><button aria-label="Close" class="close"
+                                data-dismiss="modal" type="button"><span aria-hidden="true">&times;</span></button>
+                        </div>
+                        <div class="modal-body">
+
+                            <form method="POST" action="{{ route('product.store') }}">
+                                @csrf
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">اسم المنتج</label>
+                                    <input type="text" class="form-control" id="name" name="name"
+                                        aria-describedby="emailHelp" required>
+                                    @error('name')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">القسم</label>
+                                    <select name="section_id" class="form-control" placeholder="Choose Category" required>
+                                        <option value=" ">اختر القسم</option>
+                                        @if ($sections && $sections->count() > 0)
+                                            @foreach ($sections as $section)
+                                                <option value="{{ $section->id }}">{{ $section->name }}</option>
+                                            @endforeach
+
+
+                                        @endif
+                                    </select>
+                                    @error('section_id')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                                <div class="mb-3">
+                                    <label for="exampleInputPassword1" class="form-label">الوصف</label>
+                                    <textarea name="description" id="description" class="form-control" rows="3"></textarea>
+                                    @error('description')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button class="btn ripple btn-primary" type="submit">اضافة</button>
+                                    <button class="btn ripple btn-secondary" data-dismiss="modal"
+                                        type="button">الغاء</button>
+                                </div>
+
+                            </form>
+                        </div>
                     </div>
-                    <div class="modal-body">
+                </div>
+            </div>
+            <!-- End add modal -->
 
-                        <form method="POST" action="{{ route('product.store') }}">
+
+            <!-- edit -->
+            <div class="modal fade" id="edit_Product" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">تعديل منتج</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <form action="product/update" method="post">
+                            {{ method_field('patch') }}
                             @csrf
-                            <div class="mb-3">
-                                <label for="name" class="form-label">اسم المنتج</label>
-                                <input type="text" class="form-control" id="name" name="name" aria-describedby="emailHelp"
-                                    required>
-                                @error('name')
-                                    <span class="text-danger">{{ $message }}</span>
-                                @enderror
-                            </div>
-                            <div class="mb-3">
-                                <label for="name" class="form-label">القسم</label>
-                                <select name="section_id" class="form-control" placeholder="Choose Category" required>
-                                    <option value=" ">اختر القسم</option>
-                                    @if ($sections && $sections->count() > 0)
-                                        @foreach ($sections as $section)
-                                            <option value="{{ $section->id }}">{{ $section->name }}</option>
-                                        @endforeach
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label for="title">اسم المنتج :</label>
+                                    <input type="text" class="form-control" name="product_name" id="product_name">
+                                    <input type="hidden" class="form-control" name="product_id" id="product_id" value="">
+                                </div>
 
-
-                                    @endif
+                                <label class="my-1 mr-2" for="inlineFormCustomSelectPref">القسم</label>
+                                <select name="section_name" id="section_name" class="custom-select my-1 mr-sm-2" required>
+                                    @foreach ($sections as $section)
+                                        <option>{{ $section->name }}</option>
+                                    @endforeach
                                 </select>
-                                @error('section_id')
-                                    <span class="text-danger">{{ $message }}</span>
-                                @enderror
-                            </div>
-                            <div class="mb-3">
-                                <label for="exampleInputPassword1" class="form-label">الوصف</label>
-                                <textarea name="description" id="description" class="form-control" rows="3"
-                                    required></textarea>
-                                @error('description')
-                                    <span class="text-danger">{{ $message }}</span>
-                                @enderror
-                            </div>
 
+                                <div class="form-group">
+                                    <label for="des">ملاحظات :</label>
+                                    <textarea name="description" cols="20" rows="5" id='description'
+                                        class="form-control"></textarea>
+                                </div>
+
+                            </div>
                             <div class="modal-footer">
-                                <button class="btn ripple btn-primary" type="submit">اضافة</button>
-                                <button class="btn ripple btn-secondary" data-dismiss="modal" type="button">الغاء</button>
+                                <button type="submit" class="btn btn-primary">تعديل البيانات</button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">اغلاق</button>
                             </div>
-
                         </form>
                     </div>
                 </div>
             </div>
-        </div>
-        <!-- End add modal -->
+            <!-- End edit modal -->
 
+            <!-- delete -->
+            <div class="modal" id="deleteModal">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content modal-content-demo">
+                        <div class="modal-header">
+                            <h6 class="modal-title">حذف القسم</h6><button aria-label="Close" class="close"
+                                data-dismiss="modal" type="button"><span aria-hidden="true">&times;</span></button>
+                        </div>
+                        <form action="product/destroy" method="post">
+                            {{ method_field('delete') }}
+                            @csrf
+                            <div class="modal-body">
+                                <p>هل انت متاكد من عملية الحذف ؟</p><br>
+                                <input type="hidden" name="product_id" id="product_id" value="">
+                                <div class="row">
+                                    <p>اسم المنتج : </p> <input class="form-control" name="product_name" id="product_name"
+                                        type="text" readonly>
 
-        <!-- edit -->
-        <div class="modal fade" id="edit_Product" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">تعديل منتج</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                                    <p> القسم التابع له : </p> <input class="form-control" name="section_name"
+                                        id="section_name" type="text" readonly>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">الغاء</button>
+                                <button type="submit" class="btn btn-danger">تاكيد</button>
+                            </div>
+                        </form>
                     </div>
-                    <form action="product/update" method="post">
-                        {{ method_field('patch') }}
-                        @csrf
-                        <div class="modal-body">
-                            <div class="form-group">
-                                <label for="title">اسم المنتج :</label>
-                                <input type="text" class="form-control" name="product_name" id="product_name">
-                                <input type="hidden" class="form-control" name="product_id" id="product_id" value="">
-                            </div>
-
-                            <label class="my-1 mr-2" for="inlineFormCustomSelectPref">القسم</label>
-                            <select name="section_name" id="section_name" class="custom-select my-1 mr-sm-2" required>
-                                @foreach ($sections as $section)
-                                    <option>{{ $section->name }}</option>
-                                @endforeach
-                            </select>
-
-                            <div class="form-group">
-                                <label for="des">ملاحظات :</label>
-                                <textarea name="description" cols="20" rows="5" id='description'
-                                    class="form-control"></textarea>
-                            </div>
-
-                        </div>
-                        <div class="modal-footer">
-                            <button type="submit" class="btn btn-primary">تعديل البيانات</button>
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">اغلاق</button>
-                        </div>
-                    </form>
                 </div>
             </div>
+
         </div>
-        <!-- End edit modal -->
-
-        <!-- delete -->
-        <div class="modal" id="deleteModal">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content modal-content-demo">
-                    <div class="modal-header">
-                        <h6 class="modal-title">حذف القسم</h6><button aria-label="Close" class="close" data-dismiss="modal"
-                            type="button"><span aria-hidden="true">&times;</span></button>
-                    </div>
-                    <form action="product/destroy" method="post">
-                        {{ method_field('delete') }}
-                        @csrf
-                        <div class="modal-body">
-                            <p>هل انت متاكد من عملية الحذف ؟</p><br>
-                            <input type="hidden" name="product_id" id="product_id" value="">
-                            <div class="row">
-                                <p>اسم المنتج : </p> <input class="form-control" name="product_name" id="product_name"
-                                    type="text" readonly>
-
-                                <p> القسم التابع له : </p> <input class="form-control" name="section_name" id="section_name"
-                                    type="text" readonly>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">الغاء</button>
-                            <button type="submit" class="btn btn-danger">تاكيد</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-    </div>
+    @else
+        <p>يرجى اضافة قسم اولا </p>
+    @endif
     <!-- /row -->
     </div>
     <!-- Container closed -->

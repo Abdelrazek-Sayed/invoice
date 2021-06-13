@@ -44,7 +44,8 @@ class ProductController extends Controller
             $request->validate(
 
                 [
-                    'name' => 'required',
+                    // 'name' => 'unique:products,name,NULL,id,section_id,' . $this->input('section_id'),
+                    'name' => "required",
                     'section_id' => 'required|exists:sections,id',
                     'description' => 'nullable',
                 ],

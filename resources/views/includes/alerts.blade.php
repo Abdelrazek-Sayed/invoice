@@ -16,32 +16,38 @@
 @endif
 
 
-@if ($errors->any())
-    <div class="alert alert-danger">
-        <ul>
-            @foreach ($errors->all() as $error)
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-                <strong>
-                    <li>{{ $error }}</li>
-                </strong>
-            @endforeach
-        </ul>
-    </div>
+@if (Session::has('notify_success'))
+    <script>
+        window.onload = function() {
+            notif({
+                msg: "{{ session()->get('notify_success') }}",
+                type: "success"
+            })
+        }
+
+    </script>
 @endif
 
+@if (session()->has('notify_error'))
+    <script>
+        window.onload = function() {
+            notif({
+                msg: "{{ session()->get('notify_error') }}",
+                type: "error"
+            })
+        }
 
+    </script>
+@endif
 
+@if (session()->has('notify_delete'))
+    <script>
+        window.onload = function() {
+            notif({
+                msg: "{{ session()->get('notify_delete') }}",
+                type: "warning"
+            })
+        }
 
-{{-- <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <strong>{{ session('success') }}</strong>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div> 
-    
-       <div class="row mr-2 ml-2">
-        <button type="text" class="btn btn-lg btn-block btn-outline-danger mb-2" id="type-error">
-            {{ Session::get('error') }}
-        </button>
-
-    </div> --}}
+    </script>
+@endif

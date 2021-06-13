@@ -42,7 +42,8 @@
                 </div>
                 @isset($sections)
                     <div class="card-body">
-                        @include('includes.alerts');
+                        @include('includes.alerts')
+                        @include('includes.validation_errors')
 
 
                         <div class="table-responsive">
@@ -114,8 +115,7 @@
                             </div>
                             <div class="mb-3">
                                 <label for="exampleInputPassword1" class="form-label">الوصف</label>
-                                <textarea name="description" id="description" class="form-control" rows="3"
-                                    required></textarea>
+                                <textarea name="description" id="description" class="form-control" rows="3"></textarea>
                                 @error('description')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror

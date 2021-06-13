@@ -27,7 +27,7 @@
         <div class="container-fluid">
             @yield('page-header')
             @yield('content')
-            <x:notify-messages />
+          
             @include('layouts.sidebar')
             @include('layouts.models')
             @include('layouts.footer')
