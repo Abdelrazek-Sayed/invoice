@@ -47,6 +47,7 @@ class InvoiceCreated extends Notification
             ->subject(' فاتورة جديدة')
             ->line('تم اضافة فاتورة جديدة ')
             ->action('عرض الفاتورة', url("invoice/$this->invoice_id"))
+            // ->action('عرض الفاتورة', route("invoice.show", $this->invoice_id))
             ->line('شكرا لاستخدامك شركتنا لادارة الفواتير');
     }
 

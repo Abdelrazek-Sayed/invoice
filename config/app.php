@@ -169,6 +169,7 @@ return [
         Mckenziearts\Notify\LaravelNotifyServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
         Spatie\Permission\PermissionServiceProvider::class,
+        Fx3costa\LaravelChartJs\Providers\ChartjsServiceProvider::class
         /*
          * Application Service Providers...
          */

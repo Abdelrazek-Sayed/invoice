@@ -59,6 +59,11 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::get('partial', [InvoiceController::class, 'Invoice_Partial'])->name('invoice.partial');
     Route::get('print/invoice/{id}', [InvoiceController::class, 'Invoice_Print'])->name('invoice.print');
     Route::get('export_invoices/',  [InvoiceController::class, 'export'])->name('excel.export');
+    Route::get('MarkAsRead_all/',  [InvoiceController::class, 'MarkAsRead_all'])->name('MarkAsRead_all');
+    Route::get('MarkAsRead_one/{id}',  [InvoiceController::class, 'MarkAsRead_one'])->name('read.notification');
+    // Route::get('unreadNotifications_count/',  [InvoiceController::class, 'unreadNotifications_count'])->name('unreadNotifications_count');
+    // Route::get('unreadNotifications/',  [InvoiceController::class, 'unreadNotifications'])->name('unreadNotifications');
+
 
     Route::get('attachment/open/{invoice_number}/{file_name}', [InvoiceAttachmentController::class, 'open_file']);
     Route::get('attachment/download/{invoice_number}/{file_name}', [InvoiceAttachmentController::class, 'download_file']);

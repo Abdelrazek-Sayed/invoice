@@ -10,6 +10,7 @@ use App\Models\Section;
 use Illuminate\Http\Request;
 use App\Models\InvoiceDetail;
 use App\Models\InvoiceAttachment;
+use App\Notifications\invoice_added;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
@@ -50,6 +51,8 @@ class InvoiceController extends Controller
     public function store(Request $request)
     {
 
+
+
         //validation
         $request->validate([
             'invoice_number' => 'required|string|unique:invoices,invoice_number',
@@ -73,61 +76,74 @@ class InvoiceController extends Controller
         ]);
 
         try {
-        $invoice = [
-            'invoice_number' => $request->invoice_number,
-            'invoice_date' => $request->invoice_date,
-            'due_date' => $request->due_date,
-            'section_id' => $request->section_id,
-            'product' => $request->product,
-            'amount_collection' => $request->amount_collection,
-            'amount_commission' => $request->amount_commission,
-            'discount' => $request->discount,
-            'value_vat' => $request->value_vat,
-            'rate_vat' => $request->rate_vat,
-            'total' => $request->total,
-            'note' => $request->note,
-        ];
+            $invoice = [
+                'invoice_number' => $request->invoice_number,
+                'invoice_date' => $request->invoice_date,
+                'due_date' => $request->due_date,
+                'section_id' => $request->section_id,
+                'product' => $request->product,
+                'amount_collection' => $request->amount_collection,
+                'amount_commission' => $request->amount_commission,
+                'discount' => $request->discount,
+                'value_vat' => $request->value_vat,
+                'rate_vat' => $request->rate_vat,
+                'total' => $request->total,
+                'note' => $request->note,
+            ];
 
-        $invoice_id = Invoice::insertGetId($invoice);
+            $invoice_id = Invoice::insertGetId($invoice);
 
 
-        InvoiceDetail::create([
-            'invoice_id' => $invoice_id,
-            'invoice_number' => $request->invoice_number,
-            'product' => $request->product,
-            'section' => $request->section_id,
-            'note' => $request->note,
-            'user' => (Auth::user()->name),
-        ]);
-
-        if ($request->hasFile('file')) {
-
-            $request->validate([
-                'file' => 'nullable|mimes:png,jpg,jpeg,pdf,txt',
-            ], [
-                'file.mimes' => ' خطأ: تم حفظ الفاتورة ولم يتم حفظ المرفق لان صيغته غير مدعومة ',
+            InvoiceDetail::create([
+                'invoice_id' => $invoice_id,
+                'invoice_number' => $request->invoice_number,
+                'product' => $request->product,
+                'section' => $request->section_id,
+                'note' => $request->note,
+                'user' => (Auth::user()->name),
             ]);
 
-            $invoice_number = $request->invoice_number;
-            $file_name = $request->file('file')->getClientOriginalName();
+            if ($request->hasFile('file')) {
+
+                $request->validate([
+                    'file' => 'nullable|mimes:png,jpg,jpeg,pdf,txt',
+                ], [
+                    'file.mimes' => ' خطأ: تم حفظ الفاتورة ولم يتم حفظ المرفق لان صيغته غير مدعومة ',
+                ]);
+
+                $invoice_number = $request->invoice_number;
+                $file_name = $request->file('file')->getClientOriginalName();
 
 
-            $attachments = new InvoiceAttachment();
-            $attachments->invoice_id = $invoice_id;
-            $attachments->invoice_number = $invoice_number;
-            $attachments->file_name = $file_name;
-            $attachments->created_by = Auth::user()->name;
-            $attachments->save();
+                $attachments = new InvoiceAttachment();
+                $attachments->invoice_id = $invoice_id;
+                $attachments->invoice_number = $invoice_number;
+                $attachments->file_name = $file_name;
+                $attachments->created_by = Auth::user()->name;
+                $attachments->save();
 
-            // move pic
-            // $fileName = $request->file->getClientOriginalName();
-            $request->file->move(public_path('attachments/' . $invoice_number), $file_name);
-        }
+                // move pic
+                // $fileName = $request->file->getClientOriginalName();
+                $request->file->move(public_path('attachments/' . $invoice_number), $file_name);
+            }
 
-        $user = User::first();
-        Notification::send($user, new InvoiceCreated($invoice_id));
+            // $user = User::first();
+            // Notification::send($user, new InvoiceCreated($invoice_id));
 
-        return redirect()->route('invoice.index')->with(['notify_success' => 'تم اضافة الفاتورة بنجاح']);
+
+            $recievers = User::get(); // all users
+            //  $recievers = User::find(auth()->user()->id); //  user who creates invoice
+
+            $invoice = Invoice::findOrFail($invoice_id);
+            if (!$invoice) {
+                return back()->with(['notify_error' => 'رقم الفاتورة غير صحيح']);
+            }
+
+            Notification::send($recievers, new  invoice_added($invoice));
+
+
+
+            return redirect()->route('invoice.index')->with(['notify_success' => 'تم اضافة الفاتورة بنجاح']);
         } catch (Exception $e) {
             // return $e;
             return redirect()->route('invoice.index')->with(['error' => 'هناك خطأ ما يرجى الاتصال بمزود الخدمة']);
@@ -273,12 +289,7 @@ class InvoiceController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+  
     public function destroy(Request $request)
     {
         // return $request;
@@ -380,5 +391,24 @@ class InvoiceController extends Controller
     public function export()
     {
         return Excel::download(new InvoicesExport, 'invoices.xlsx');
+    }
+
+    public function MarkAsRead_all(Request $request)
+    {
+        $userUnreadNotification = auth()->user()->unreadNotifications;
+
+        if ($userUnreadNotification) {
+            $userUnreadNotification->markAsRead();
+            return back();
+        }
+    }
+    public function MarkAsRead_one($id)
+    {
+        $notification = auth()->user()->notifications()->where('id', $id)->first();
+
+        if ($notification) {
+            $notification->markAsRead();
+        }
+        return redirect()->route('invoice.show', $id);
     }
 }
