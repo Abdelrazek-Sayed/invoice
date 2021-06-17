@@ -73,7 +73,7 @@
 
                             <div class="col">
                                 <label for="inputName" class="control-label">مبلغ التحصيل</label>
-                                <input type="text" class="form-control" id="inputName" name="amount_collection"
+                                <input type="text" class="form-control" id="Amount_Collection" name="amount_collection"
                                     oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"
                                     value="{{ $invoice->amount_collection }}" readonly>
                             </div>
@@ -86,7 +86,7 @@
 
                             <div class="col">
                                 <label for="inputName" class="control-label">مبلغ العمولة</label>
-                                <input type="text" class="form-control form-control-lg" id="amount_commission"
+                                <input type="text" class="form-control form-control-lg" id="Amount_Commission"
                                     oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"
                                     value="{{ $invoice->amount_commission }}" required readonly>
                             </div>
@@ -130,7 +130,7 @@
                             <div class="col">
                                 <label for="exampleTextarea">ملاحظات</label>
                                 <textarea class="form-control" id="exampleTextarea" name="note" rows="3" readonly>
-                                                            {{ $invoice->note }}</textarea>
+                                                                {{ $invoice->note }}</textarea>
                             </div>
                         </div><br>
 
@@ -153,7 +153,30 @@
                             </div>
 
 
+
                         </div><br>
+
+                        <div class="row" id="partial_div">
+                            <div class="col">
+                                <p class="mg-b-10">المبلغ المدفوع</p>
+                                <input type="text" class="form-control" id="Paid_Amount" name="paid_amount" value=""
+                                    onchange="myFunction()">
+                                @error('paid_amount')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
+                            <div class="col">
+                                <p class="control-label">المبلغ المتبقي</p>
+                                <input type="text" value="" class="form-control" id="Unpaid_Amount" name="unpaid_amount"
+                                    readonly>
+                                @error('unpaid_amount')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div><br>
+
+
+
 
                         <div class="d-flex justify-content-center">
                             <button type="submit" class="btn btn-primary">تحديث حالة الدفع</button>
@@ -193,4 +216,31 @@
         }).val();
 
     </script>
+    <script>
+        $('#partial_div').hide();
+        $('select').on('change', function() {
+            if ($(this).val() == "2") {
+                $('#partial_div').show();
+            } else {
+                $('#partial_div').hide();
+            }
+        });
+
+    </script>
+
+    <script>
+        function myFunction() {
+
+            var Amount_Collection = parseFloat(document.getElementById("Amount_Collection").value);
+            var Paid_Amount = parseFloat(document.getElementById("Paid_Amount").value);
+            var Amount_Collection_new = Amount_Collection - Paid_Amount;
+
+
+            document.getElementById("Unpaid_Amount").value = Amount_Collection_new;
+        }
+
+    </script>
+
+
+
 @endsection

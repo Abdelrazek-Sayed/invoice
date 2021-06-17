@@ -11,33 +11,22 @@ use App\Http\Requests\SectionRequest;
 
 class SectionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+   
+
+    function __construct()
+    {
+        $this->middleware('permission:الاقسام', ['only' => ['index']]);
+        $this->middleware('permission:اضافة قسم', ['only' => ['store']]);
+        $this->middleware('permission:تعديل قسم', ['only' => ['update']]);
+        $this->middleware('permission:حذف قسم', ['only' => ['destroy']]);
+    }
     public function index()
     {
         $sections = Section::all();
         return view('sections.section', compact('sections'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(SectionRequest $request)
     {
         // $validated = $request->validated();
@@ -49,41 +38,14 @@ class SectionController extends Controller
 
             // notify()->success('تمت اضافة القسم بنجاح');
 
-            return redirect()->route('section.index')->with(['success' => 'تمت اضافة القسم بنجاح']);
+            return redirect()->route('section.index')->with(['notify_success' => 'تمت اضافة القسم بنجاح']);
         } catch (Exception $e) {
             // return $e;
             return redirect()->route('section.index')->with(['error' => 'هناك خطأ ما يرجى الاتصال بمزود الخدمة']);
         }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request)
     {
         $id = $request->id;
@@ -107,7 +69,7 @@ class SectionController extends Controller
                 'name' => $request->name,
                 'description' => $request->description,
             ]);
-            return redirect()->route('section.index')->with(['success' => 'تمت تعديل القسم بنجاح']);
+            return redirect()->route('section.index')->with(['notify_success' => 'تمت تعديل القسم بنجاح']);
         } catch (Exception $e) {
             // return $e;
             return redirect()->route('section.index')->with(['error' => 'هناك خطأ ما يرجى الاتصال بمزود الخدمة']);
@@ -129,23 +91,7 @@ class SectionController extends Controller
                 return redirect()->route('section.index')->with(['error' => ' هذا القسم غير موجود']);
             }
             $section->delete();
-            return redirect()->route('section.index')->with(['success' => 'تمت حذف القسم بنجاح']);
-        } catch (Exception $e) {
-            // return $e;
-            return redirect()->route('section.index')->with(['error' => 'هناك خطأ ما يرجى الاتصال بمزود الخدمة']);
-        }
-    }
-
-    public function delete(Request $request)
-    {
-        $id = $request->id;
-        try {
-            $section = Section::findOrFail($id);
-            if (!$section) {
-                return redirect()->route('section.index')->with(['error' => ' هذا القسم غير موجود']);
-            }
-            $section->delete();
-            return redirect()->route('section.index')->with(['success' => 'تمت حذف القسم بنجاح']);
+            return redirect()->route('section.index')->with(['notify_success' => 'تم حذف القسم بنجاح']);
         } catch (Exception $e) {
             // return $e;
             return redirect()->route('section.index')->with(['error' => 'هناك خطأ ما يرجى الاتصال بمزود الخدمة']);

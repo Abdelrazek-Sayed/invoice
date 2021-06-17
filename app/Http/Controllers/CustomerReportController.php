@@ -8,9 +8,15 @@ use Illuminate\Http\Request;
 
 class CustomerReportController extends Controller
 {
+
+    function __construct()
+    {
+        $this->middleware('permission:تقرير العملاء', ['only' => ['index', 'Search_customers']]);
+    }
+
+
     public function index()
     {
-
         $sections = Section::all();
         return view('reports.customers_report', compact('sections'));
     }
@@ -18,9 +24,6 @@ class CustomerReportController extends Controller
 
     public function Search_customers(Request $request)
     {
-
-
-
         // في حالة البحث بدون التاريخ
         if ($request->section && $request->product && $request->start_at == '' && $request->end_at == '') {
 
@@ -28,14 +31,11 @@ class CustomerReportController extends Controller
             $invoices = Invoice::select('*')->where('section_id', '=', $request->section)->where('product', '=', $request->product)->get();
             $sections = Section::all();
             return view('reports.customers_report', compact('sections'))->withDetails($invoices);
-
         } elseif ($request->section === 'all' && $request->start_at == '' && $request->end_at == '') {
 
             $invoices = Invoice::all();
             $sections = Section::all();
             return view('reports.customers_report', compact('sections'))->withDetails($invoices);
-
-
         } else { // في حالة البحث بتاريخ
 
             $start_at = date($request->start_at);

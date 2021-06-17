@@ -34,178 +34,182 @@
     <div class="row">
 
         <div class="col-lg-12 col-md-12">
-            <div class="card">
-                <div class="card-body">
-                    <form action="{{ route('invoice.store') }}" method="POST" enctype="multipart/form-data">
-                        @csrf
+            @if (count($sections) > 0)
+                <div class="card">
+                    <div class="card-body">
+                        <form action="{{ route('invoice.store') }}" method="POST" enctype="multipart/form-data" autocomplete="off">
+                            @csrf
 
-                        <div class="row">
-                            <div class="col">
-                                <label for="inputName" class="control-label">رقم الفاتورة</label>
-                                <input type="text" class="form-control" id="inputName" name="invoice_number"
-                                    title="يرجي ادخال رقم الفاتورة" value="{{ old('invoice_number') }}" required>
-                                @error('invoice_number')
+                            <div class="row">
+                                <div class="col">
+                                    <label for="inputName" class="control-label">رقم الفاتورة</label>
+                                    <input type="text" class="form-control" id="inputName" name="invoice_number"
+                                        title="يرجي ادخال رقم الفاتورة" value="{{ old('invoice_number') }}" required>
+                                    @error('invoice_number')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div class="col">
+                                    <label>تاريخ الفاتورة</label>
+                                    <input class="form-control fc-datepicker" name="invoice_date" placeholder="YYYY-MM-DD"
+                                        type="text" value="{{ date('Y-m-d') }}" required>
+                                    @error('invoice_date')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div class="col">
+                                    <label>تاريخ الاستحقاق</label>
+                                    <input class="form-control fc-datepicker" name="due_date" placeholder="YYYY-MM-DD"
+                                        type="text" value="{{ old('due_date') }}" autocomplete="off" required>
+                                    @error('due_date')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                            </div>
+
+                            {{-- 2 --}}
+                            <div class="row">
+                                <div class="col">
+                                    <label for="inputName" class="control-label">القسم</label>
+                                    <select name="section_id" class="form-control SlectBox"
+                                        onclick="console.log($(this).val())" onchange="console.log('change is firing')">
+                                        <!--placeholder-->
+                                        <option value="" selected disabled>حدد القسم</option>
+                                        @foreach ($sections as $section)
+                                            <option value="{{ $section->id }}"> {{ $section->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('section_id')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+
+                                </div>
+
+                                <div class="col">
+                                    <label for="inputName" class="control-label">المنتج</label>
+                                    <select id="product" name="product" class="form-control">
+
+                                    </select>
+
+                                    @error('product')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div class="col">
+                                    <label for="inputName" class="control-label">مبلغ التحصيل</label>
+                                    <input type="text" class="form-control" id="inputName" name="amount_collection"
+                                        value="{{ old('amount_collection') }}"
+                                        oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
+                                    @error('amount_collection')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+
+
+                            {{-- 3 --}}
+
+                            <div class="row">
+
+                                <div class="col">
+                                    <label for="inputName" class="control-label">مبلغ العمولة</label>
+                                    <input type="text" class="form-control form-control-lg" id="Amount_Commission"
+                                        value="{{ old('amount_commission') }}" name="amount_commission"
+                                        title="يرجي ادخال مبلغ العمولة "
+                                        oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"
+                                        required>
+                                    @error('amount_commission')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div class="col">
+                                    <label for="inputName" class="control-label">الخصم</label>
+                                    <input type="text" class="form-control form-control-lg" id="Discount" name="discount"
+                                        title="يرجي ادخال مبلغ الخصم " value=0 value="{{ old('discount') }}"
+                                        oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"
+                                        required>
+
+                                    @error('discount')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div class="col">
+                                    <label for="inputName" class="control-label">نسبة ضريبة القيمة المضافة</label>
+                                    <select name="rate_vat" id="Rate_Vat" class="form-control" onchange="myFunction()">
+                                        <!--placeholder-->
+                                        <option value="" selected disabled>حدد نسبة الضريبة</option>
+                                        <option value=" 5%">5%</option>
+                                        <option value="10%">10%</option>
+                                    </select>
+                                    @error('rate_vat')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                            </div>
+
+                            {{-- 4 --}}
+
+                            <div class="row">
+                                <div class="col">
+                                    <label for="inputName" class="control-label">قيمة ضريبة القيمة المضافة</label>
+                                    <input type="text" class="form-control" id="Value_Vat" name="value_vat"
+                                        value="{{ old('value_vat') }}" readonly>
+                                    @error('value_vat')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div class="col">
+                                    <label for="inputName" class="control-label">الاجمالي شامل الضريبة</label>
+                                    <input type="text" class="form-control" id="Total" name="total"
+                                        value="{{ old('total') }}" readonly>
+                                    @error('total')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            {{-- 5 --}}
+                            <div class="row">
+                                <div class="col">
+                                    <label for="exampleTextarea">ملاحظات</label>
+                                    <textarea class="form-control" id="exampleTextarea" name="note"
+                                        rows="3">{{ old('note') }}</textarea>
+                                </div>
+                                @error('note')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
-                            </div>
+                            </div><br>
 
-                            <div class="col">
-                                <label>تاريخ الفاتورة</label>
-                                <input class="form-control fc-datepicker" name="invoice_date" placeholder="YYYY-MM-DD"
-                                    type="text" value="{{ date('Y-m-d') }}" required>
-                                @error('invoice_date')
+                            <p class="text-danger">* صيغة المرفق pdf, jpeg ,.jpg , png </p>
+                            <h5 class="card-title">المرفقات</h5>
+
+                            <div class="col-sm-12 col-md-12">
+                                <input type="file" name="file" class="dropify"
+                                    accept=".pdf,.jpg, .png, image/jpeg, image/png" data-height="70" />
+                                @error('file')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
+                            </div><br>
+
+                            <div class="d-flex justify-content-center">
+                                <button type="submit" class="btn btn-primary">حفظ البيانات</button>
                             </div>
 
-                            <div class="col">
-                                <label>تاريخ الاستحقاق</label>
-                                <input class="form-control fc-datepicker" name="due_date" placeholder="YYYY-MM-DD"
-                                    type="text" value="{{ old('due_date') }}" autocomplete="off" required>
-                                @error('due_date')
-                                    <span class="text-danger">{{ $message }}</span>
-                                @enderror
-                            </div>
 
-                        </div>
-
-                        {{-- 2 --}}
-                        <div class="row">
-                            <div class="col">
-                                <label for="inputName" class="control-label">القسم</label>
-                                <select name="section_id" class="form-control SlectBox" onclick="console.log($(this).val())"
-                                    onchange="console.log('change is firing')">
-                                    <!--placeholder-->
-                                    <option value="" selected disabled>حدد القسم</option>
-                                    @foreach ($sections as $section)
-                                        <option value="{{ $section->id }}"> {{ $section->name }}</option>
-                                    @endforeach
-                                </select>
-                                @error('section_id')
-                                    <span class="text-danger">{{ $message }}</span>
-                                @enderror
-
-                            </div>
-
-                            <div class="col">
-                                <label for="inputName" class="control-label">المنتج</label>
-                                <select id="product" name="product" class="form-control">
-
-                                </select>
-
-                                @error('product')
-                                    <span class="text-danger">{{ $message }}</span>
-                                @enderror
-                            </div>
-
-                            <div class="col">
-                                <label for="inputName" class="control-label">مبلغ التحصيل</label>
-                                <input type="text" class="form-control" id="inputName" name="amount_collection"
-                                    value="{{ old('amount_collection') }}"
-                                    oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
-                                @error('amount_collection')
-                                    <span class="text-danger">{{ $message }}</span>
-                                @enderror
-                            </div>
-                        </div>
-
-
-                        {{-- 3 --}}
-
-                        <div class="row">
-
-                            <div class="col">
-                                <label for="inputName" class="control-label">مبلغ العمولة</label>
-                                <input type="text" class="form-control form-control-lg" id="Amount_Commission"
-                                    value="{{ old('amount_commission') }}" name="amount_commission"
-                                    title="يرجي ادخال مبلغ العمولة "
-                                    oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"
-                                    required>
-                                @error('amount_commission')
-                                    <span class="text-danger">{{ $message }}</span>
-                                @enderror
-                            </div>
-
-                            <div class="col">
-                                <label for="inputName" class="control-label">الخصم</label>
-                                <input type="text" class="form-control form-control-lg" id="Discount" name="discount"
-                                    title="يرجي ادخال مبلغ الخصم " value=0  value="{{ old('discount') }}"
-                                    oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"
-                                    required>
-
-                                @error('discount')
-                                    <span class="text-danger">{{ $message }}</span>
-                                @enderror
-                            </div>
-
-                            <div class="col">
-                                <label for="inputName" class="control-label">نسبة ضريبة القيمة المضافة</label>
-                                <select name="rate_vat" id="Rate_Vat" class="form-control" onchange="myFunction()">
-                                    <!--placeholder-->
-                                    <option value="" selected disabled>حدد نسبة الضريبة</option>
-                                    <option value=" 5%">5%</option>
-                                    <option value="10%">10%</option>
-                                </select>
-                                @error('rate_vat')
-                                    <span class="text-danger">{{ $message }}</span>
-                                @enderror
-                            </div>
-
-                        </div>
-
-                        {{-- 4 --}}
-
-                        <div class="row">
-                            <div class="col">
-                                <label for="inputName" class="control-label">قيمة ضريبة القيمة المضافة</label>
-                                <input type="text" class="form-control" id="Value_Vat" name="value_vat"
-                                    value="{{ old('value_vat') }}" readonly>
-                                @error('value_vat')
-                                    <span class="text-danger">{{ $message }}</span>
-                                @enderror
-                            </div>
-
-                            <div class="col">
-                                <label for="inputName" class="control-label">الاجمالي شامل الضريبة</label>
-                                <input type="text" class="form-control" id="Total" name="total"
-                                    value="{{ old('total') }}" readonly>
-                                @error('total')
-                                    <span class="text-danger">{{ $message }}</span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        {{-- 5 --}}
-                        <div class="row">
-                            <div class="col">
-                                <label for="exampleTextarea">ملاحظات</label>
-                                <textarea class="form-control" id="exampleTextarea" name="note"
-                                    rows="3">{{ old('note') }}</textarea>
-                            </div>
-                            @error('note')
-                                <span class="text-danger">{{ $message }}</span>
-                            @enderror
-                        </div><br>
-
-                        <p class="text-danger">* صيغة المرفق pdf, jpeg ,.jpg , png </p>
-                        <h5 class="card-title">المرفقات</h5>
-
-                        <div class="col-sm-12 col-md-12">
-                            <input type="file" name="file" class="dropify" accept=".pdf,.jpg, .png, image/jpeg, image/png"
-                                data-height="70" />
-                            @error('file')
-                                <span class="text-danger">{{ $message }}</span>
-                            @enderror
-                        </div><br>
-
-                        <div class="d-flex justify-content-center">
-                            <button type="submit" class="btn btn-primary">حفظ البيانات</button>
-                        </div>
-
-
-                    </form>
+                        </form>
+                    </div>
                 </div>
-            </div>
+            @else
+                <p>يرجى اضافة قسم ومنتج اولا</p>
+            @endif
         </div>
     </div>
 

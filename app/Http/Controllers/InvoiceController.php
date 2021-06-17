@@ -20,11 +20,24 @@ use Illuminate\Support\Facades\Notification;
 
 class InvoiceController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    function __construct()
+    {
+        $this->middleware('permission:قائمة الفواتير', ['only' => ['index']]);
+        $this->middleware('permission:اضافة فاتورة', ['only' => ['create', 'store']]);
+        $this->middleware('permission:تعديل الفاتورة', ['only' => ['edit', 'update']]);
+        $this->middleware('permission:حذف الفاتورة', ['only' => ['destroy']]);
+        $this->middleware('permission:ارشفة الفاتورة', ['only' => ['archieve']]);
+        $this->middleware('permission:تغير حالة الدفع', ['only' => ['editStatus', 'updateStatus']]);
+        $this->middleware('permission:الفواتير الغير مدفوعة', ['only' => ['Invoice_unPaid']]);
+        $this->middleware('permission:الفواتير المدفوعة', ['only' => ['Invoice_Paid']]);
+        $this->middleware('permission:الفواتير المدفوعة جزئيا', ['only' => ['Invoice_Partial']]);
+        $this->middleware('permission:طباعةالفاتورة', ['only' => ['Invoice_Print']]);
+        $this->middleware('permission:تصدير EXCEL', ['only' => ['export']]);
+        $this->middleware('permission:الاشعارات', ['only' => ['MarkAsRead_all']]);
+    }
+
+
+
     public function index()
     {
         $invoices = Invoice::orderBy('id', 'DESC')->get();
@@ -42,12 +55,7 @@ class InvoiceController extends Controller
         return view('invoices.create', compact('sections'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+
     public function store(Request $request)
     {
 
@@ -127,22 +135,13 @@ class InvoiceController extends Controller
                 $request->file->move(public_path('attachments/' . $invoice_number), $file_name);
             }
 
-            // $user = User::first();
-            // Notification::send($user, new InvoiceCreated($invoice_id));
-
-
-            $recievers = User::get(); // all users
-            //  $recievers = User::find(auth()->user()->id); //  user who creates invoice
+            $recievers = User::where('email', 'admin@gmail.com')->get(); // owner only
 
             $invoice = Invoice::findOrFail($invoice_id);
             if (!$invoice) {
                 return back()->with(['notify_error' => 'رقم الفاتورة غير صحيح']);
             }
-
             Notification::send($recievers, new  invoice_added($invoice));
-
-
-
             return redirect()->route('invoice.index')->with(['notify_success' => 'تم اضافة الفاتورة بنجاح']);
         } catch (Exception $e) {
             // return $e;
@@ -150,12 +149,7 @@ class InvoiceController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+
     public function show($id)
     {
         $invoice = Invoice::findOrFail($id);
@@ -167,12 +161,7 @@ class InvoiceController extends Controller
         return view('invoices.invoice_details', compact('invoice', 'attachments', 'details'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+
     public function edit($id)
     {
         $invoice = Invoice::findOrFail($id);
@@ -183,15 +172,10 @@ class InvoiceController extends Controller
         return view('invoices.edit', compact('invoice', 'sections'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+
     public function update(Request $request, $id)
     {
+
         $request->validate([
             'invoice_number' => "required|string|unique:invoices,invoice_number,$id",
             'invoice_date' => 'required|date',
@@ -214,8 +198,6 @@ class InvoiceController extends Controller
 
 
         try {
-
-
             $invoice = Invoice::findOrFail($id);
             if (!$invoice) {
                 return back()->with(['notify_error' => 'رقم الفاتورة غير صحيح']);
@@ -242,7 +224,6 @@ class InvoiceController extends Controller
 
             foreach ($details as $detail) {
                 $detail->update([
-
                     'invoice_number' => $request->invoice_number,
                     'section' => $request->section_id,
                     'product' => $request->product,
@@ -253,24 +234,20 @@ class InvoiceController extends Controller
 
             foreach ($attachments as $attachment) {
                 $attachment->update([
-
                     'invoice_number' => $request->invoice_number,
                     'created_by' => (Auth::user()->name),
                 ]);
             }
 
-
-            Storage::disk('uploads')->move($invoice_old_number, $invoice_new_number);
-
+            if ($invoice_old_number !== $invoice_new_number) {
+                Storage::disk('uploads')->move($invoice_old_number, $invoice_new_number);
+            }
             return redirect()->route('invoice.show', $id)->with(['notify_success' => 'تم تعديل الفاتورة بنجاح']);
         } catch (Exception $e) {
             // return $e;
-            // DB::rollback();
             return redirect()->route('invoice.index')->with(['error' => 'هناك خطأ ما يرجى الاتصال بمزود الخدمة']);
         }
     }
-
-
 
     public function archieve(Request $request)
     {
@@ -289,7 +266,7 @@ class InvoiceController extends Controller
         }
     }
 
-  
+
     public function destroy(Request $request)
     {
         // return $request;
@@ -337,13 +314,31 @@ class InvoiceController extends Controller
         ]);
         $invoice_id = $request->invoice_id;
         $invoice = Invoice::findOrFail($invoice_id);
-        // if (!$invoice) {
-        //     return back()->with(['notify_error' => 'رقم الفاتورة غير صحيح']);
-        // }
-        $invoice->update([
-            'status' => $request->status,
-            'payment_date' => $request->payment_date,
-        ]);
+        if (!$invoice) {
+            return back()->with(['notify_error' => 'رقم الفاتورة غير صحيح']);
+        }
+
+        if ($request->status == 2) {
+            $request->validate([
+                'unpaid_amount' => 'required|integer',
+                'paid_amount' => 'required|integer',
+
+            ], [
+                'required' => 'هذا الحقل مطلوب',
+            ]);
+
+            $invoice->update([
+                'status' => $request->status,
+                'payment_date' => $request->payment_date,
+                'amount_collection' => $request->unpaid_amount,
+            ]);
+        } else {
+
+            $invoice->update([
+                'status' => $request->status,
+                'payment_date' => $request->payment_date,
+            ]);
+        }
 
         InvoiceDetail::create([
             'invoice_id' => $invoice_id,
@@ -402,13 +397,13 @@ class InvoiceController extends Controller
             return back();
         }
     }
-    public function MarkAsRead_one($id)
-    {
-        $notification = auth()->user()->notifications()->where('id', $id)->first();
+    // public function MarkAsRead_one($id)
+    // {
+    //     $notification = auth()->user()->notifications()->where('id', $id)->first();
 
-        if ($notification) {
-            $notification->markAsRead();
-        }
-        return redirect()->route('invoice.show', $id);
-    }
+    //     if ($notification) {
+    //         $notification->markAsRead();
+    //     }
+    //     return redirect()->route('invoice.show', $id);
+    // }
 }

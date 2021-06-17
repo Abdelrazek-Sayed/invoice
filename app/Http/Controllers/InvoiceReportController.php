@@ -7,6 +7,12 @@ use Illuminate\Http\Request;
 
 class InvoiceReportController extends Controller
 {
+
+    function __construct()
+    {
+        $this->middleware('permission:تقرير الفواتير', ['only' => ['index', 'Search_invoices']]);
+    }
+
     public function index()
     {
         return view('reports.invoices_report');

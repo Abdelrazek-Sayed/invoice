@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
+
+
     public function index()
     {
         $all_invoices =   number_format(Invoice::sum('total'), 2);
@@ -35,26 +37,6 @@ class HomeController extends Controller
         } else {
             $partial_ratio = $partial_count / $all_count * 100;
         }
-
-
-        // $lineChartTest = app()->chartjs
-        //     ->name('lineChartTest')
-        //     ->type('line')
-        //     ->size(['width' => 400, 'height' => 200])
-        //     ->labels(['الفواتير المدفوعة', 'الفواتير الغير المدفوعة', 'الفواتير المدفوعة جزئيا'])
-        //     ->datasets([
-        //         [
-        //             "label" => "My First dataset",
-        //             'backgroundColor' => "rgba(38, 185, 154, 0.31)",
-        //             'borderColor' => "rgba(38, 185, 154, 0.7)",
-        //             "pointBorderColor" => "rgba(38, 185, 154, 0.7)",
-        //             "pointBackgroundColor" => "rgba(38, 185, 154, 0.7)",
-        //             "pointHoverBackgroundColor" => "#fff",
-        //             "pointHoverBorderColor" => "rgba(220,220,220,1)",
-        //             'data' => [$paid_ratio, $unpaid_ratio, $partial_ratio],
-        //         ],
-        //     ])
-        //     ->options([]);
 
         $bar_chart = app()->chartjs
             ->name('barChartTest')

@@ -15,23 +15,9 @@ use App\Http\Controllers\InvoiceArchievedController;
 use App\Http\Controllers\InvoiceAttachmentController;
 use App\Http\Controllers\InvoiceReportController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
-
-
 
 
 Route::middleware(['auth', 'active'])->group(function () {
-    // Route::get('/{page}', [AdminController::class, 'index']);
-
     Route::get('/', [HomeController::class, 'index'])->name('admin.dashboard');
     Route::redirect('home', '/');
 
@@ -61,8 +47,6 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::get('export_invoices/',  [InvoiceController::class, 'export'])->name('excel.export');
     Route::get('MarkAsRead_all/',  [InvoiceController::class, 'MarkAsRead_all'])->name('MarkAsRead_all');
     Route::get('MarkAsRead_one/{id}',  [InvoiceController::class, 'MarkAsRead_one'])->name('read.notification');
-    // Route::get('unreadNotifications_count/',  [InvoiceController::class, 'unreadNotifications_count'])->name('unreadNotifications_count');
-    // Route::get('unreadNotifications/',  [InvoiceController::class, 'unreadNotifications'])->name('unreadNotifications');
 
 
     Route::get('attachment/open/{invoice_number}/{file_name}', [InvoiceAttachmentController::class, 'open_file']);

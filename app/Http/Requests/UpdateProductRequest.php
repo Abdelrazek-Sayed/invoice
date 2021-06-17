@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreProductRequest extends FormRequest
+class UpdateProductRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,31 +24,27 @@ class StoreProductRequest extends FormRequest
      */
     public function rules()
     {
+
         return [
-            'name'  =>   [
+            'product_name'  =>   [
                 'required',
                 'max:255',
                 Rule::unique('products')->where(function ($query) {
                     $query->where('section_id', $this->input('section_id'));
-                }),
+                })->ignore($this->input('id'), 'id'),
             ],
-
-            'section_id' => 'required|exists:sections,id',
-
+            'product_id' => 'required|exists:products,id',
             'description' => 'nullable',
         ];
     }
-
 
 
     public function messages()
 
     {
         return [
-            'name.required' => ' اسم المنتج مطلوب',
-            'name.unique' => ' اسم المنتج موجود  مسبقا لنفس القسم ',
-            'section_id.required' => ' اسم القسم مطلوب',
-            'section_id.exists' => 'هذا القسم غير موجود',
+            'product_name.required' => ' اسم المنتج مطلوب',
+            'product_name.unique' => 'اسم المنتج موجود مسبقا',
         ];
     }
 }
